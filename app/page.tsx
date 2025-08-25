@@ -83,7 +83,6 @@ export default function Home() {
     getPlace();
   }, [location]);
 
-  // defensive helpers
   const light_or_dark = weatherData?.current?.is_day ?? 1;
 
   const sunset =
@@ -108,6 +107,14 @@ export default function Home() {
     typeof weatherData?.daily?.temperature_2m_max?.[0] !== "undefined"
       ? Math.round(weatherData.daily.temperature_2m_max[0])
       : "--";
+
+  const now: Date = new Date();
+
+  const currentTime = now.toLocaleTimeString([], {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false
+});
 
   const data = [
     {
@@ -193,11 +200,11 @@ export default function Home() {
               )}
             </div>
 
-            {place && <div className="font-light text-2xl">{place.address?.county}</div>}
+            {place && <div className="font-light text-2xl">{place.address?.county} {currentTime}</div>}
 
             {weatherData && (
               <div>
-                <div className="text-7xl font-thin">
+                <div className="text-9xl font-thin">
                   {Math.round(weatherData.current.temperature_2m ?? 0)}
                   &deg;
                 </div>
@@ -228,14 +235,17 @@ export default function Home() {
               <div
                 style={{
                   width: chartInnerWidth,
-                  height: 360,
-                  display: "block", // prevents flexbox shrinking
+                  height: 240,
+                  display: "block",
                   margin: "0 auto",
+                  overflowY: "hidden",
+                  borderRadius: "20px",
+                  marginTop: '10px',
                 }}
               >
                 <HourlyWeatherChart
                   raw={hourlyData}
-                  bgClass="bg-white/5"
+                  bgClass="bg-white/20"
                   iconMap={{
                     day: "/icons/sun.svg",
                     night: "/icons/moon.svg",

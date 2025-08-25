@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { ResponsiveContainer, LineChart, Line, XAxis, Tooltip } from "recharts";
+import { ResponsiveContainer, LineChart, Line, XAxis, Tooltip, Label } from "recharts";
 
 type ArrayLikeNumber = ArrayLike<number> | null | undefined;
 
@@ -26,6 +26,11 @@ interface Props {
     bgClass?: string; // e.g. "bg-transparent" or "bg-slate-900/5"
     iconMap?: IconMap;
     height?: number; // px, default 320
+}
+
+interface CustomLabel {
+    viewBox: any;
+    value: string;
 }
 
 export default function HourlyData({
@@ -67,8 +72,8 @@ export default function HourlyData({
         const entry = data.find((d) => d.timeLabel === payload.value);
         return (
             <g transform={`translate(${x},${y + 6})`}>
-                <text x={0} y={0} textAnchor="middle" fontSize={11} fill="#111">{payload.value}</text>
-                <text x={0} y={14} textAnchor="middle" fontSize={10} fill="#6b7280">{entry ? `${entry.windKmh} km/h` : ""}</text>
+                <text x={0} y={0} textAnchor="middle" fontSize={14} fill="#000">{payload.value}</text>
+                <text x={0} y={14} textAnchor="middle" fontSize={12} fill="#fff">{entry ? `${entry.windKmh} km/h` : ""}</text>
             </g>
         );
     };
@@ -91,17 +96,27 @@ export default function HourlyData({
     if (!data || data.length === 0) {
         return <div className={`${bgClass} rounded-md p-3 text-center text-sm text-gray-500`}>No hourly data</div>;
     }
+    const CustomLabel = ({ viewBox, value }: CustomLabel) => {
+        const { x, y } = viewBox;
+        return (
+            <text x={70} y={y} fill="#666" dy={-10} textAnchor="middle">
+                {value}
+            </text>
+        );
+    };
 
     return (
-        <div className={`${bgClass} rounded-md`} style={{ padding: 8 }}>
+        <div className={`${bgClass} rounded-md`} style={{ padding: 8, paddingTop: 10 }}>
             <div style={{ height }}>
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data} margin={{ top: 28, right: 12, left: 12, bottom: 96 }}>
+                        <Label value="24-hour forecast" position="top" content={<CustomLabel/>} />
                         <XAxis dataKey="timeLabel" tick={(props) => <XTick {...props} />} axisLine={false} tickLine={false} interval={Math.max(0, Math.floor(data.length / 8))} height={72} />
-                        <Tooltip formatter={(v: any, name: string) => name === "temperature" ? [`${Math.round(v)}°`, "Temp"] : [`${v}`, name]} />
+                        <Tooltip formatter={(v: any, name: string) => name === "temperature" ? [`${Math.round(v)}°`, "temp"] : [`${v}`, name]} />
                         <Line type="monotone" dataKey="temperature" stroke="#10B981" strokeWidth={2} dot={<CustomDot />} activeDot={{ r: 6 }} isAnimationActive={false} />
                     </LineChart>
                 </ResponsiveContainer>
+                <p style={{ textAlign: 'center', fontSize: '12px', color: '#666' }}>Source: My Data Source</p>
             </div>
         </div>
     );
