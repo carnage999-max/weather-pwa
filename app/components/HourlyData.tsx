@@ -28,11 +28,6 @@ interface Props {
     height?: number; // px, default 320
 }
 
-interface CustomLabel {
-    viewBox: any;
-    value: string;
-}
-
 export default function HourlyData({
     raw,
     bgClass = "bg-transparent",
@@ -96,11 +91,13 @@ export default function HourlyData({
     if (!data || data.length === 0) {
         return <div className={`${bgClass} rounded-md p-3 text-center text-sm text-gray-500`}>No hourly data</div>;
     }
-    const CustomLabel = ({ viewBox, value }: CustomLabel) => {
-        const { x, y } = viewBox;
+
+    const CustomLabel = (props: any) => {
+        const { viewBox } = props;
+        const { x, y, width } = viewBox;
         return (
             <text x={70} y={y} fill="#666" dy={-10} textAnchor="middle">
-                {value}
+                24-hour forecast
             </text>
         );
     };
@@ -110,7 +107,7 @@ export default function HourlyData({
             <div style={{ height }}>
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data} margin={{ top: 28, right: 12, left: 12, bottom: 96 }}>
-                        <Label value="24-hour forecast" position="top" content={<CustomLabel/>} />
+                        <Label value="24-hour forecast" position="top" content={<CustomLabel />} />
                         <XAxis dataKey="timeLabel" tick={(props) => <XTick {...props} />} axisLine={false} tickLine={false} interval={Math.max(0, Math.floor(data.length / 8))} height={72} />
                         <Tooltip formatter={(v: any, name: string) => name === "temperature" ? [`${Math.round(v)}°`, "temp"] : [`${v}`, name]} />
                         <Line type="monotone" dataKey="temperature" stroke="#10B981" strokeWidth={2} dot={<CustomDot />} activeDot={{ r: 6 }} isAnimationActive={false} />
