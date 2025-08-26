@@ -4,51 +4,10 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { getLocation } from "./lib/getLocation";
 import { getWeatherData } from "./lib/weatherData";
-import { Card } from "@tremor/react";
 import { weatherCodes } from "./lib/weatherCodes";
 import HourlyWeatherChart from "./components/HourlyData";
+import WeatherInfo from "./components/WeatherInfo";
 
-interface weatherInfo {
-  name: string;
-  statValue: number | string;
-  unit: string;
-  iconUrl: string;
-}
-
-interface weatherInfoProps {
-  data: weatherInfo[];
-}
-
-export function WeatherInfo({ data }: weatherInfoProps) {
-  return (
-    <div className="mt-4 flex flex-wrap justify-center">
-      {data.map((item) => (
-        <Card
-          key={item.name}
-          className="w-[47%] rounded-lg m-1 bg-white/30 backdrop-blur-sm border-white/30 font-sans sm:w-[47%]"
-        >
-          <div className="px-3 py-3">
-            <div className="font-medium text-center text-sm">
-              <span>{item.name}</span>
-            </div>
-            <Image
-              src={item.iconUrl}
-              alt={item.name}
-              width={32}
-              height={32}
-              className="mx-auto my-1"
-            />
-            <div className="text-tremor-default text-tremor-content dark:text-dark-tremor-content text-center">
-              <span className="p-1 rounded-lg font-medium text-md backdrop-blur-sm border-white/30">
-                {item.statValue} {item.unit}
-              </span>
-            </div>
-          </div>
-        </Card>
-      ))}
-    </div>
-  );
-}
 
 export default function Home() {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | undefined>(
@@ -111,10 +70,10 @@ export default function Home() {
   const now: Date = new Date();
 
   const currentTime = now.toLocaleTimeString([], {
-  hour: '2-digit',
-  minute: '2-digit',
-  hour12: false
-});
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
 
   const data = [
     {
