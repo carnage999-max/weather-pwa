@@ -1,4 +1,3 @@
-// app/components/WeatherInfo.tsx
 "use client";
 
 import Image from "next/image";

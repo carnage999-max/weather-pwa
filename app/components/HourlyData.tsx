@@ -1,4 +1,3 @@
-// app/components/HourlyData.tsx
 "use client";
 
 import React, { useMemo } from "react";
