@@ -17,9 +17,13 @@ export default function Home() {
   const [place, setPlace] = useState<any>(undefined);
 
   useEffect(() => {
-    const loc = getLocation();
-    if (loc) setLocation(loc);
+    const fetchLocation = async () => {
+      const loc = await getLocation();
+      if (loc) setLocation(loc);
+    };
+    fetchLocation();
   }, []);
+
 
   useEffect(() => {
     if (!location) return;

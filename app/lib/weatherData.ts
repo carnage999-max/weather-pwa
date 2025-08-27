@@ -96,24 +96,6 @@ export const getWeatherData = async (latitude: number, longitude: number) => {
             sunshine_duration: daily.variables(6)!.valuesArray(),
         },
     };
-
-    // 'weatherData' now contains a simple structure with arrays with datetime and weather data
-    console.log(
-        `\nCurrent time: ${weatherData.current.time}`,
-        `\nCurrent temperature_2m: ${weatherData.current.temperature_2m}`,
-        `\nCurrent is_day: ${weatherData.current.is_day}`,
-        `\nCurrent apparent_temperature: ${weatherData.current.apparent_temperature}`,
-        `\nCurrent rain: ${weatherData.current.rain}`,
-        `\nCurrent showers: ${weatherData.current.showers}`,
-        `\nCurrent wind_speed_10m: ${weatherData.current.wind_speed_10m}`,
-        `\nCurrent precipitation: ${weatherData.current.precipitation}`,
-        `\nCurrent pressure_msl: ${weatherData.current.pressure_msl}`,
-        `\nCurrent wind_direction_10m: ${weatherData.current.wind_direction_10m}`,
-        `\nCurrent relative_humidity_2m: ${weatherData.current.relative_humidity_2m}`,
-    );
-    console.log("\Hourly data", weatherData.hourly);
-    console.log("\nCurrent data", weatherData.current);
-    console.log("\nToday data", weatherData.daily);
     return weatherData;
 }
 
