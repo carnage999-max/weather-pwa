@@ -8,14 +8,28 @@
   "description": "Weather App built with ❤️",
   "screenshots": [
     {
-      "src": "images/screenshot-mobile.png",
+      "src": "screenshots/screenshot-mobile-2.png",
       "sizes": "393x845",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Mobile view"
     },
     {
-      "src": "images/screenshot-desktop.png",
+      "src": "screenshots/screenshot-mobile-1.png",
+      "sizes": "394x847",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile view"
+    },
+    {
+      "src": "screenshots/screenshot-desktop-1.png",
+      "sizes": "1920x966",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Desktop view"
+    },
+    {
+      "src": "screenshots/screenshot-desktop-2.png",
       "sizes": "1920x966",
       "type": "image/png",
       "form_factor": "wide",

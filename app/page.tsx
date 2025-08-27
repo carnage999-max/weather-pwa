@@ -8,13 +8,15 @@ import { weatherCodes } from "./lib/weatherCodes";
 import HourlyWeatherChart from "./components/HourlyData";
 import WeatherInfo from "./components/WeatherInfo";
 
-
 export default function Home() {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | undefined>(
     undefined
   );
   const [weatherData, setWeatherData] = useState<any>(undefined);
   const [place, setPlace] = useState<any>(undefined);
+
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showCTA, setShowCTA] = useState(false);
 
   useEffect(() => {
     const fetchLocation = async () => {
@@ -23,7 +25,6 @@ export default function Home() {
     };
     fetchLocation();
   }, []);
-
 
   useEffect(() => {
     if (!location) return;
@@ -46,6 +47,41 @@ export default function Home() {
     getPlace();
   }, [location]);
 
+  useEffect(() => {
+    // Detect if already installed
+    const isStandalone =
+      (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+      // @ts-ignore (iOS Safari)
+      window.navigator.standalone === true;
+
+    if (isStandalone) {
+      setShowCTA(false);
+      return;
+    }
+
+    const handler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowCTA(true);
+    };
+
+    window.addEventListener("beforeinstallprompt", handler);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const choice = await deferredPrompt.userChoice;
+    if (choice.outcome === "accepted") {
+      setShowCTA(false);
+    }
+    setDeferredPrompt(null);
+  };
+
   const light_or_dark = weatherData?.current?.is_day ?? 0;
 
   const sunset =
@@ -59,7 +95,7 @@ export default function Home() {
 
   const weather =
     weatherCodes[
-    (weatherData?.current?.weather_code?.toString() ?? "") as keyof typeof weatherCodes
+      (weatherData?.current?.weather_code?.toString() ?? "") as keyof typeof weatherCodes
     ] ?? "";
 
   const minTemp =
@@ -74,9 +110,9 @@ export default function Home() {
   const now: Date = new Date();
 
   const currentTime = now.toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
   });
 
   const data = [
@@ -120,13 +156,12 @@ export default function Home() {
 
   const hourlyData = weatherData?.hourly;
 
-  // compute inner chart width so the inner chart canvas can be wider than viewport and scroll
   const points = (() => {
     if (!hourlyData) return 24;
     return hourlyData.time?.length ?? hourlyData.length ?? 24;
   })();
-  const tickSpacing = 56; // px per tick (tune this)
-  const chartInnerWidth = Math.max(980, points * tickSpacing); // inner canvas width in px
+  const tickSpacing = 56;
+  const chartInnerWidth = Math.max(980, points * tickSpacing);
 
   return (
     <div
@@ -136,7 +171,6 @@ export default function Home() {
           : `flex items-center justify-center min-h-screen bg-[url(/weather-bg-dark.png)] bg-cover bg-center p-4`
       }
     >
-      {/* center visible column — this controls the visual width shared by WeatherInfo & chart wrapper */}
       <div style={{ width: "100%", maxWidth: 980, margin: "0 auto", minWidth: 0 }}>
         <main className="flex flex-col gap-4 items-center sm:items-start" style={{ minWidth: 0 }}>
           {/* header row */}
@@ -163,7 +197,11 @@ export default function Home() {
               )}
             </div>
 
-            {place && <div className="font-light text-2xl">{place.address?.county} {currentTime}</div>}
+            {place && (
+              <div className="font-light text-2xl">
+                {place.address?.county} {currentTime}
+              </div>
+            )}
 
             {weatherData && (
               <div>
@@ -178,14 +216,12 @@ export default function Home() {
             )}
           </div>
 
-          {/* unified content wrapper: WeatherInfo (fills visible width) + chart (scrolls inside) */}
+          {/* WeatherInfo + Chart */}
           <div style={{ width: "100%", minWidth: 0 }}>
-            {/* Weather summary/cards — visible width */}
             <div style={{ width: "100%", minWidth: 0 }}>
               <WeatherInfo data={data} />
             </div>
 
-            {/* Chart scroller: viewport that user scrolls left-right */}
             <div
               style={{
                 width: "100%",
@@ -194,7 +230,6 @@ export default function Home() {
                 overscrollBehaviorX: "contain",
               }}
             >
-              {/* Inner canvas: MUST be wider than viewport for the chart content to scroll */}
               <div
                 style={{
                   width: chartInnerWidth,
@@ -203,7 +238,7 @@ export default function Home() {
                   margin: "0 auto",
                   overflowY: "hidden",
                   borderRadius: "20px",
-                  marginTop: '10px',
+                  marginTop: "10px",
                 }}
               >
                 <HourlyWeatherChart
@@ -220,6 +255,42 @@ export default function Home() {
               </div>
             </div>
           </div>
+
+          {/* CTA (only if not installed) */}
+          {showCTA && (
+            deferredPrompt ? (
+              <div className="mt-8 w-full text-center">
+                <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 max-w-md mx-auto">
+                  <h2 className="text-lg font-semibold mb-2">Install this app</h2>
+                  <p className="text-sm text-gray-100 mb-3">
+                    Add this app to your home screen for quick access:
+                  </p>
+                  <button
+                    onClick={handleInstallClick}
+                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+                  >
+                    Install App
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-8 w-full text-center">
+                <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 max-w-md mx-auto">
+                  <h2 className="text-lg font-semibold mb-2">Install this app</h2>
+                  <p className="text-sm text-gray-100 mb-3">
+                    Get quick access by installing it manually:
+                  </p>
+                  <ol className="list-decimal list-inside text-sm text-gray-200 space-y-1 text-left">
+                    <li>Open the browser menu (⋮ or ⌵)</li>
+                    <li>
+                      Select <span className="font-medium">“Add to Home Screen”</span>
+                    </li>
+                    <li>Tap <span className="font-medium">Install</span></li>
+                  </ol>
+                </div>
+              </div>
+            )
+          )}
         </main>
       </div>
     </div>
