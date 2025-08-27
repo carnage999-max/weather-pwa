@@ -2,7 +2,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
+// client components
 import ServiceWorkerRegister from "./components/ServiceWorkerRegister";
+import PwaEntrance from "./components/PwaEntrance";
+import ProtocolHandler from "./components/ProtocolHandler";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,11 +31,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* PWA manifest + theme */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#317EFB" />
-
-        {/* Apple / legacy */}
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -39,10 +40,19 @@ export default function RootLayout({
       </head>
 
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {/* Client-side SW registration + optional cache seeding.
-            ServiceWorkerRegister is a client component (app/components/ServiceWorkerRegister.tsx)
-            and will no-op in development by default. */}
+        {/* Register service worker and optionally seed caches (client-only) */}
         <ServiceWorkerRegister />
+
+        {/* Inbound protocol payload handler: runs when app loads and will route if URL contains
+            ?source=protocol&payload=... */
+        }
+        <ProtocolHandler />
+
+        {/* Outbound UX: show install/open banner when appropriate
+            - PwaEntrance will no-op inside standalone display-mode,
+            - and show install or Open-App CTA in browser */}
+        <PwaEntrance protocol="web+weather" autoTryUnknown={true} />
+
         {children}
       </body>
     </html>

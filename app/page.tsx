@@ -42,7 +42,7 @@ export default function Home() {
     getPlace();
   }, [location]);
 
-  const light_or_dark = weatherData?.current?.is_day ?? 1;
+  const light_or_dark = weatherData?.current?.is_day ?? 0;
 
   const sunset =
     weatherData?.daily?.sunset?.[0] !== undefined
